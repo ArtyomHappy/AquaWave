@@ -23,8 +23,12 @@ export function LoginPage() {
         await fetchProfile(user.id);
         navigate('/profile');
       }
-    } catch (err: any) {
-      setError(err.message === 'Invalid login credentials' ? 'Неверный email или пароль' : err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message === 'Invalid login credentials' ? 'Неверный email или пароль' : err.message);
+      } else {
+        setError('Произошла неизвестная ошибка');
+      }
     } finally {
       setLoading(false);
     }

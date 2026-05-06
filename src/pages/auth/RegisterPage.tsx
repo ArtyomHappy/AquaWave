@@ -34,8 +34,12 @@ export function RegisterPage() {
         await fetchProfile(user.id);
         navigate('/profile');
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Произошла неизвестная ошибка');
+      }
     } finally {
       setLoading(false);
     }

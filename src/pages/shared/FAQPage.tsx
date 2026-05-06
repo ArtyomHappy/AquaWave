@@ -42,8 +42,12 @@ export function FAQPage() {
       await createSupportRequest({ user_id: profile.id, subject: form.subject, message: form.message });
       setSent(true);
       setForm({ subject: '', message: '' });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Произошла неизвестная ошибка');
+      }
     } finally {
       setSending(false);
     }
