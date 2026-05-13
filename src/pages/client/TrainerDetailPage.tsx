@@ -27,10 +27,7 @@ function getWeekDates(): Date[] {
   return dates;
 }
 
-const TRAINER_AVATARS = [
-  'https://images.pexels.com/photos/1547248/pexels-photo-1547248.jpeg?auto=compress&cs=tinysrgb&w=400',
-  'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-];
+const TRAINER_AVATAR = 'https://images.pexels.com/photos/1547248/pexels-photo-1547248.jpeg?auto=compress&cs=tinysrgb&w=400';
 
 export function TrainerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -82,7 +79,7 @@ export function TrainerDetailPage() {
   if (!trainer) return <div className="text-center py-20">Тренер не найден</div>;
 
   const name = trainer.profile ? `${trainer.profile.first_name} ${trainer.profile.last_name}` : 'Тренер';
-  const avatar = trainer.avatar_url || trainer.profile?.avatar_url || TRAINER_AVATARS[0];
+  const avatar = trainer.avatar_url || trainer.profile?.avatar_url || TRAINER_AVATAR;
   const weekDates = getWeekDates();
 
   if (success) {
