@@ -1,32 +1,43 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Settings, LogOut, Calendar, Clock, X } from 'lucide-react';
+import { User, Settings, LogOut, Calendar, Clock, X, Dumbbell } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getUserBookings, updateBookingStatus } from '../../services/bookings';
-import { Booking } from '../../types';
+import { getClientRequests } from '../../services/trainers';
+import { Booking, TrainingRequest } from '../../types';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Spinner } from '../../components/ui/Spinner';
 
-const STATUS_MAP: Record<string, { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' }> = {
+const BOOKING_STATUS_MAP: Record<string, { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' }> = {
   paid: { label: 'Оплачено', variant: 'success' },
   pending: { label: 'Ожидает', variant: 'warning' },
   cancelled: { label: 'Отменено', variant: 'error' },
+};
+
+const TRAINING_STATUS_MAP: Record<string, { label: string; variant: 'success' | 'warning' | 'error' | 'neutral' }> = {
+  pending: { label: 'Ожидает', variant: 'warning' },
+  approved: { label: 'Подтверждено', variant: 'success' },
+  rejected: { label: 'Отклонено', variant: 'error' },
 };
 
 export function ProfilePage() {
   const { profile, signOut } = useAuthStore();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [trainingRequests, setTrainingRequests] = useState<TrainingRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (profile) {
-      getUserBookings(profile.id).then((data) => {
-        setBookings(data);
-        setLoading(false);
-      });
-    }
+    if (!profile) return;
+    Promise.all([
+      getUserBookings(profile.id),
+      getClientRequests(profile.id),
+    ]).then(([bookingsData, requestsData]) => {
+      setBookings(bookingsData);
+      setTrainingRequests(requestsData);
+      setLoading(false);
+    });
   }, [profile]);
 
   const handleCancel = async (id: string) => {
@@ -43,6 +54,10 @@ export function ProfilePage() {
 
   const upcoming = bookings.filter((b) => b.status !== 'cancelled' && new Date(`${b.date}T${b.time_slot}`) >= new Date());
   const past = bookings.filter((b) => b.status !== 'cancelled' && new Date(`${b.date}T${b.time_slot}`) < new Date());
+
+  const upcomingTraining = trainingRequests.filter(
+    (r) => r.status !== 'rejected' && new Date(`${r.date}T${r.time_slot}`) >= new Date()
+  );
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -77,10 +92,10 @@ export function ProfilePage() {
         <div className="lg:col-span-3 space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Личный кабинет</h1>
-            <p className="text-gray-500 text-sm">Добро пожаловать, {profile.first_name}. У вас {upcoming.length} предстоящих занятий.</p>
+            <p className="text-gray-500 text-sm">Добро пожаловать, {profile.first_name}. У вас {upcoming.length} предстоящих бронирований.</p>
           </div>
 
-          {/* Upcoming bookings */}
+          {/* Upcoming pool bookings */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Предстоящие бронирования</h2>
             {loading ? (
@@ -110,8 +125,8 @@ export function ProfilePage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={STATUS_MAP[b.status]?.variant || 'neutral'}>
-                        {STATUS_MAP[b.status]?.label || b.status}
+                      <Badge variant={BOOKING_STATUS_MAP[b.status]?.variant || 'neutral'}>
+                        {BOOKING_STATUS_MAP[b.status]?.label || b.status}
                       </Badge>
                       {b.status !== 'cancelled' && (
                         <button
@@ -124,6 +139,54 @@ export function ProfilePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming trainer sessions */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Предстоящие записи</h2>
+            {loading ? (
+              <div className="flex justify-center py-8"><Spinner className="w-6 h-6" /></div>
+            ) : upcomingTraining.length === 0 ? (
+              <div className="bg-white rounded-xl border border-dashed border-gray-200 p-8 text-center text-gray-400">
+                <Dumbbell className="w-8 h-8 mx-auto mb-2" />
+                <p className="text-sm">Нет предстоящих записей к тренеру</p>
+                <Link to="/trainers" className="text-sky-600 text-sm hover:underline mt-1 inline-block">
+                  Найти тренера
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {upcomingTraining.map((r) => {
+                  const trainerName = r.trainer?.profile
+                    ? `${r.trainer.profile.first_name} ${r.trainer.profile.last_name}`
+                    : 'Тренер';
+                  const avatar = r.trainer?.avatar_url || r.trainer?.profile?.avatar_url || 'https://images.pexels.com/photos/1547248/pexels-photo-1547248.jpeg?auto=compress&cs=tinysrgb&w=200';
+                  const statusInfo = TRAINING_STATUS_MAP[r.status] || { label: r.status, variant: 'neutral' as const };
+                  return (
+                    <div key={r.id} className="bg-white rounded-xl border border-gray-100 p-4 flex gap-4 items-center">
+                      <img
+                        src={avatar}
+                        className="w-16 h-16 rounded-lg object-cover object-top flex-shrink-0"
+                        alt=""
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm">{trainerName}</h3>
+                        {r.trainer?.specialization && (
+                          <p className="text-xs text-sky-600 mb-1">{r.trainer.specialization}</p>
+                        )}
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {r.date}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {r.time_slot}</span>
+                        </div>
+                      </div>
+                      <Badge variant={statusInfo.variant}>
+                        {statusInfo.label}
+                      </Badge>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -147,8 +210,8 @@ export function ProfilePage() {
                         <span>{b.time_slot}</span>
                       </div>
                     </div>
-                    <Badge variant={STATUS_MAP[b.status]?.variant || 'neutral'}>
-                      {STATUS_MAP[b.status]?.label || b.status}
+                    <Badge variant={BOOKING_STATUS_MAP[b.status]?.variant || 'neutral'}>
+                      {BOOKING_STATUS_MAP[b.status]?.label || b.status}
                     </Badge>
                   </div>
                 ))}
