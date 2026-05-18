@@ -212,7 +212,7 @@ export function PoolDetailPage() {
             <div className="mb-5">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
                 <Clock className="w-4 h-4 text-sky-500" />
-                Свободные места к 8-ми
+                Свободные места
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {TIME_SLOTS.map((t) => {

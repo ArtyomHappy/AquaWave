@@ -169,7 +169,7 @@ export function TrainerDetailPage() {
 
             {/* Time slots */}
             <div className="mb-5">
-              <p className="text-sm font-medium text-gray-700 mb-3">Свободные места к 8-ми</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">Свободные места</p>
               <div className="grid grid-cols-3 gap-2">
                 {TIME_SLOTS.map((t) => {
                   const isBooked = bookedSlots.includes(t);
