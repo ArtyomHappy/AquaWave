@@ -13,7 +13,6 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Verify the caller is authenticated
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -22,7 +21,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Create a client with the caller's JWT to verify identity
     const userClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -37,7 +35,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Use service role to delete the user from auth
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!

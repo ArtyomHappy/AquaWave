@@ -53,7 +53,6 @@ export function PoolsPage() {
     }
 
     if (existingScript) {
-      // Script already loading, wait for ymaps to be ready
       const interval = setInterval(() => {
         if (window.ymaps && window.ymaps.Map) {
           clearInterval(interval);
@@ -76,7 +75,6 @@ export function PoolsPage() {
   const initMap = () => {
     const container = document.getElementById('ymap');
     if (!container) return;
-    // Destroy existing map instance if any
     if ((container as any)._ymaps_map) {
       try { (container as any)._ymaps_map.destroy(); } catch (_) {}
     }

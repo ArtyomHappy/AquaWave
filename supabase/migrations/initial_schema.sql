@@ -1,22 +1,5 @@
 /*
   Initial Schema for Pool Booking Application
-
-  1. New Tables
-    • `profiles` - Extended user profiles (name, role, avatar)
-    • `pools` - Pool catalog with details
-    • `bookings` - Pool visit bookings
-    • `trainers` - Trainer profiles linked to users
-    • `training_requests` - Client requests for trainer sessions
-    • `support_requests` - User support messages
-
-  2. Security
-    • Enable RLS on all tables
-    • Policies for each role (client, trainer, admin)
-
-  3. Notes
-    • Roles: CLIENT, TRAINER, ADMIN
-    • Booking statuses: pending, paid, cancelled
-    • Training request statuses: pending, approved, rejected
 */
 
 -- Profiles table
