@@ -4,4 +4,4 @@
 
 Графические наработки: https://www.figma.com/design/mVHAHC99fD0XikSHSfUbrS/%D0%91%D1%80%D0%BE%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%D0%BE%D0%B2?node-id=0-1&t=86a2aGzhqYF9J02i-1
 
-Видеопрезентация: https://drive.google.com/file/d/1A7t_2_R1KL92wGUl7A8gdvOrBg2jALgA/view
+Полная видеопрезентация: https://drive.google.com/file/d/1hQTj623TuKY9J5SeQe9vTIWVf0hV2o-q/view?usp=sharing
